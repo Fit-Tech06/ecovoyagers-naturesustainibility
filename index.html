@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoVoyagers | Nature Sustainability</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    /* Backgrounds */
+    .hero-bg {
+      background: url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+      position: relative;
+    }
+
+    .hero-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(0, 60, 0, 0.7), rgba(0, 120, 0, 0.6));
+      backdrop-filter: blur(1px);
+      z-index: 0;
+    }
+
+    /* Glass effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-up {
+      animation: fadeUp 1.5s ease forwards;
+    }
+
+    .fade-up-delayed {
+      animation: fadeUp 1.5s ease forwards 0.5s;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 1s ease;
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-gradient-to-b from-emerald-50 via-green-50 to-lime-100 text-gray-900">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full z-50 bg-green-900/80 backdrop-blur-md text-white shadow-lg">
+    <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+      <h1 class="text-2xl font-bold tracking-wide flex items-center gap-2">
+        🌿 <span class="text-emerald-300">EcoVoyagers</span>
+      </h1>
+      <div class="space-x-5 text-lg">
+        <a href="#about" class="hover:text-emerald-300 transition font-medium">About</a>
+        <a href="#mission" class="hover:text-emerald-300 transition font-medium">Mission</a>
+        <a href="register.html"
+          class="bg-emerald-400 px-4 py-2 rounded-full font-semibold text-green-900 hover:bg-emerald-300 transition">Join</a>
+        <a href="register.html#login"
+          class="border border-emerald-300 px-4 py-2 rounded-full hover:bg-emerald-400 hover:text-green-900 transition font-semibold">
+          Login
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-bg h-screen flex flex-col justify-center items-center text-center text-white relative">
+    <div class="z-10 fade-up">
+      <h2 class="text-6xl md:text-7xl font-extrabold drop-shadow-lg">Together for a Greener Planet</h2>
+      <p class="max-w-2xl mt-6 mx-auto text-lg text-emerald-100 fade-up-delayed">
+        Join <strong>EcoVoyagers</strong> to fight pollution and promote sustainability.
+        Take real action, inspire others, and earn eco-rewards for saving nature 🌱.
+      </p>
+
+      <div class="flex space-x-6 mt-8">
+        <a href="register.html"
+          class="bg-emerald-400 hover:bg-emerald-300 text-green-900 px-8 py-3 rounded-full font-semibold text-lg shadow-lg hover:scale-105 transition">
+          🌱 Get Started
+        </a>
+        <a href="register.html#login"
+          class="bg-white/90 hover:bg-white text-green-900 px-8 py-3 rounded-full font-semibold text-lg shadow-lg hover:scale-105 transition">
+          🔑 Login
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="py-24 px-8 bg-gradient-to-br from-green-50 via-emerald-50 to-lime-100">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 reveal">
+      <img src="planting1.jpg"
+        class="w-full md:w-1/2 rounded-3xl shadow-2xl hover:scale-105 transition duration-500 object-cover"
+        alt="Tree planting" />
+      <div class="md:w-1/2 space-y-6">
+        <h3 class="text-4xl font-bold text-green-800">What is Nature Sustainability?</h3>
+        <p class="text-lg leading-relaxed text-gray-800 space-y-4">
+            <span class="block">
+              <b>Nature Sustainability</b> by <b>EcoVoyagers</b> aims to unite eco-conscious citizens across the globe
+              through a shared commitment to preserving our planet. Our initiative focuses on spreading awareness about
+              environmental protection and encouraging simple yet impactful lifestyle changes that reduce waste and carbon footprint.
+            </span>
+          
+            <span class="block">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur blandit nisl a tincidunt dictum.
+              Sed ullamcorper, nisi id volutpat finibus, justo nisl laoreet nibh, vel fermentum massa lorem in velit.
+              Vivamus sit amet quam dignissim, vehicula justo a, luctus augue. Nulla facilisi.
+            </span>
+          
+            <span class="block">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer convallis elit ac tortor aliquet,
+              in tincidunt ipsum fermentum. Morbi accumsan, mauris vel placerat mattis, felis eros pretium urna,
+              non consectetur libero nisi non ex. Suspendisse potenti. Quisque semper est non sapien facilisis feugiat.
+            </span>
+          </p>
+          
+        <p class="text-lg leading-relaxed text-gray-800">
+          Join now to <b>earn eco-rewards</b>, showcase your efforts, and grow a lifestyle that protects the Earth. 🌎💚
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section id="mission" class="py-24 px-8 bg-gradient-to-br from-emerald-50 to-green-100 reveal">
+    <div class="text-center mb-14">
+      <h3 class="text-4xl font-bold text-green-800">Our Mission</h3>
+      <p class="text-lg text-gray-700 mt-3">Empowering communities to build a sustainable and cleaner world.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto text-center">
+      <div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-2 transition transform">
+        <i class="bi bi-recycle text-5xl text-emerald-600"></i>
+        <h4 class="text-2xl font-semibold mt-5 mb-2">Reduce Plastic</h4>
+        <p>Encourage responsible recycling and waste management practices.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-2 transition transform">
+        <i class="bi bi-tree text-5xl text-emerald-600"></i>
+        <h4 class="text-2xl font-semibold mt-5 mb-2">Plant More Trees</h4>
+        <p>Organize planting drives and protect biodiversity.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-2 transition transform">
+        <i class="bi bi-award text-5xl text-emerald-600"></i>
+        <h4 class="text-2xl font-semibold mt-5 mb-2">Get Rewarded</h4>
+        <p>Earn points and recognition for verified eco-actions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="py-24 px-8 bg-gradient-to-br from-green-50 via-emerald-50 to-lime-50 reveal">
+    <h3 class="text-4xl font-extrabold text-center text-green-800 mb-14 tracking-wide">
+      🌍 Community in Action
+    </h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl hover:scale-105 transition">
+        <img src="cleaning.jpg" alt="Cleanup" class="w-full h-72 object-cover" />
+        <div class="p-5 text-center">
+          <p class="text-gray-700 font-medium">Volunteers cleaning beaches & streets ♻️</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl hover:scale-105 transition">
+        <img src="plastic.jpg" alt="Recycling" class="w-full h-72 object-cover" />
+        <div class="p-5 text-center">
+          <p class="text-gray-700 font-medium">Communities recycling plastic waste 🌿</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl hover:scale-105 transition">
+        <img src="planting.jpg" alt="Planting" class="w-full h-72 object-cover" />
+        <div class="p-5 text-center">
+          <p class="text-gray-700 font-medium">Citizens planting trees for a greener tomorrow 🌱</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Support -->
+  <section class="py-24 px-8 bg-gradient-to-b from-emerald-100 to-green-50 reveal">
+    <h3 class="text-4xl font-bold text-center text-green-800 mb-12">📞 Contact Support</h3>
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div class="space-y-6">
+        <h4 class="text-2xl font-semibold text-green-700">Get in Touch</h4>
+        <p class="text-green-900 leading-relaxed">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Our team is
+          ready to guide you on your sustainability path and assist with any
+          issues.
+        </p>
+        <div class="space-y-3 text-green-800">
+          <p class="flex items-center gap-2">
+            <i class="bi bi-geo-alt-fill text-emerald-600 text-xl"></i>
+            <span>123 Green Valley Street, EcoCity, Lorem State, 400001</span>
+          </p>
+          <p class="flex items-center gap-2">
+            <i class="bi bi-envelope-fill text-emerald-600 text-xl"></i>
+            <span>support@ecovoyagers.com</span>
+          </p>
+          <p class="flex items-center gap-2">
+            <i class="bi bi-telephone-fill text-emerald-600 text-xl"></i>
+            <span>+91 98765 43210</span>
+          </p>
+        </div>
+      </div>
+
+      <form class="glass shadow-2xl rounded-3xl p-8 space-y-6">
+        <input type="text" placeholder="Your Name"
+          class="w-full border border-emerald-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none" />
+        <input type="email" placeholder="Your Email"
+          class="w-full border border-emerald-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none" />
+        <textarea placeholder="Your Message..." rows="4"
+          class="w-full border border-emerald-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"></textarea>
+        <button
+          class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">
+          Send Message
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-green-900 text-white text-center py-6 text-sm mt-10">
+    <p>
+      © 2025 <b>EcoVoyagers</b> | Built with 💚 for a Greener Future |
+      <a href="register.html" class="text-emerald-300 hover:underline">Join Us</a>
+    </p>
+  </footer>
+
+  <script>
+    // Scroll reveal animation
+    const reveals = document.querySelectorAll(".reveal");
+    window.addEventListener("scroll", () => {
+      const trigger = window.innerHeight * 0.9;
+      reveals.forEach(r => {
+        const top = r.getBoundingClientRect().top;
+        if (top < trigger) r.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
