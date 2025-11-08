@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVoyagers Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons (for aesthetic and clarity) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom styles for nature theme and scroll behavior */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        :root {
+            --color-primary: #10B981; /* Emerald 500 */
+            --color-secondary: #059669; /* Emerald 600 */
+            --color-background: #F0FDF4; /* Green 50 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: #1F2937; /* Gray 800 */
+            min-height: 100vh;
+        }
+        /* Style for the active navigation tab */
+        .nav-item.active {
+            background-color: var(--color-secondary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4), 0 2px 4px -2px rgba(16, 185, 129, 0.4);
+        }
+        .nav-item:not(.active):hover {
+            background-color: #D1FAE5; /* Green 100 */
+        }
+        /* Custom styling for the content areas */
+        .scroll-container {
+            max-height: 65vh; /* Fixed height for content areas */
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-primary) #E5E7EB;
+        }
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: var(--color-primary);
+            border-radius: 10px;
+        }
+        /* Styling for the Shorts cards */
+        .short-card {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6)), url('https://placehold.co/300x400/10B981/ffffff?text=Eco+Action');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+            color: white;
+            transition: transform 0.2s;
+        }
+        .short-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5);
+        }
+        /* Styling for the Video Upload button */
+        #uploadVideoBtn {
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        #uploadVideoBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col lg:flex-row">
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="w-full lg:w-64 bg-white shadow-xl lg:h-screen lg:sticky top-0 p-4 z-20 flex flex-col justify-between">
+        <div class="flex flex-col">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-6 flex items-center">
+                <i data-lucide="leaf" class="text-emerald-500 w-8 h-8 mr-2"></i>
+                EcoVoyagers
+            </h1>
+
+            <!-- Navigation Links -->
+            <div class="space-y-2">
+                <a href="#" data-view="dashboard" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700 transition duration-150 active">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard & Profile
+                </a>
+                <a href="#" data-view="upload" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700 transition duration-150">
+                    <i data-lucide="clapperboard" class="w-5 h-5 mr-3"></i> Video Upload
+                </a>
+                <a href="#" data-view="shorts" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700 transition duration-150">
+                    <i data-lucide="align-start" class="w-5 h-5 mr-3"></i> Eco-Shorts Feed
+                </a>
+                <a href="#" data-view="leaderboard" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700 transition duration-150">
+                    <i data-lucide="award" class="w-5 h-5 mr-3"></i> Leaderboard
+                </a>
+                <a href="#" data-view="community" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700 transition duration-150">
+                    <i data-lucide="users" class="w-5 h-5 mr-3"></i> Community & Groups
+                </a>
+            </div>
+        </div>
+        
+        <!-- User Info / Logout -->
+        <div class="mt-8 pt-4 border-t border-gray-100">
+            <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                <div class="h-10 w-10 bg-emerald-200 rounded-full flex items-center justify-center font-bold text-emerald-800 text-lg">
+                    <i data-lucide="circle-user" class="w-5 h-5"></i>
+                </div>
+                <div class="ml-3 text-sm">
+                    <p class="font-semibold text-gray-900" id="profileUsername">Loading...</p>
+                    <p class="text-gray-500 text-xs truncate" id="profileUserId">Auth ID: </p>
+                </div>
+            </div>
+            <button onclick="handleLogout()" class="mt-4 w-full text-center text-red-600 hover:text-red-800 text-sm font-medium">
+                Log Out
+            </button>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <main class="flex-1 p-4 sm:p-8">
+        <!-- Tab Switching for Mobile (Dropdown) -->
+        <div class="lg:hidden mb-6">
+            <select id="mobile-nav-select" class="w-full p-3 border border-gray-300 rounded-xl bg-white focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 font-medium">
+                <option value="dashboard">Dashboard & Profile</option>
+                <option value="upload">Video Upload</option>
+                <option value="shorts">Eco-Shorts Feed</option>
+                <option value="leaderboard">Leaderboard</option>
+                <option value="community">Community & Groups</option>
+            </select>
+        </div>
+
+        <h2 id="current-view-title" class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Dashboard & Profile</h2>
+        <div id="content-views" class="space-y-8">
+            
+            <!-- -------------------------------------------------------------------------------------- -->
+            <!-- 1. DASHBOARD & PROFILE VIEW -->
+            <!-- -------------------------------------------------------------------------------------- -->
+            <div id="dashboard-view" class="view active">
+                <!-- User Stats Card -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-t-4 border-emerald-500">
+                        <i data-lucide="check-circle" class="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mb-2"></i>
+                        <p class="text-xs sm:text-sm font-medium text-gray-500">Verified Videos</p>
+                        <p id="verified-videos" class="text-2xl sm:text-3xl font-extrabold text-gray-900">0</p>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-t-4 border-yellow-500">
+                        <i data-lucide="history" class="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 mb-2"></i>
+                        <p class="text-xs sm:text-sm font-medium text-gray-500">Videos Under Review</p>
+                        <p id="pending-videos" class="text-2xl sm:text-3xl font-extrabold text-gray-900">0</p>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-t-4 border-yellow-600">
+                        <i data-lucide="coins" class="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 mb-2"></i>
+                        <p class="text-xs sm:text-sm font-medium text-gray-500">Reward Points</p>
+                        <p id="reward-points" class="text-2xl sm:text-3xl font-extrabold text-gray-900">0</p>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-t-4 border-blue-500">
+                        <i data-lucide="medal" class="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mb-2"></i>
+                        <p class="text-xs sm:text-sm font-medium text-gray-500">Current Rank</p>
+                        <p id="current-rank" class="text-2xl sm:text-3xl font-extrabold text-gray-900">--</p>
+                    </div>
+                </div>
+
+                <!-- Video Submission Status Panel -->
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i data-lucide="list-checks" class="w-5 h-5 mr-2 text-emerald-600"></i>Your Submission History
+                    </h3>
+                    <div id="video-list-container" class="scroll-container max-h-[300px] divide-y divide-gray-100">
+                        <!-- Video items will be rendered here -->
+                        <p id="loading-videos-text" class="text-center text-gray-500 p-4">Loading video history...</p>
+                    </div>
+                </div>
+
+                <!-- Achievement & Redemption -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i data-lucide="trophy" class="w-5 h-5 mr-2 text-yellow-600"></i>Achievements & Rewards
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Achievements (Mock Data) -->
+                        <div>
+                            <p class="font-semibold text-gray-700 mb-3">Your Milestones</p>
+                            <div class="space-y-3">
+                                <div class="p-4 bg-gray-50 rounded-lg flex items-center justify-between">
+                                    <span class="text-gray-600">First 5 Verified Collections</span>
+                                    <span class="font-medium text-emerald-600">Unlocked!</span>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg flex items-center justify-between opacity-60">
+                                    <span class="text-gray-600">50KG of Plastic Recycled</span>
+                                    <span class="font-medium text-red-500">25 to go...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Redemption -->
+                        <div>
+                            <p class="font-semibold text-gray-700 mb-3">Redeem Rewards</p>
+                            <div class="p-4 bg-emerald-50 rounded-lg shadow-inner">
+                                <p class="text-sm text-gray-700 mb-3">Redeem your <span id="redeem-points" class="font-bold text-emerald-700">0</span> points!</p>
+                                <button onclick="showMessage('Redemption feature is coming soon!')" class="w-full bg-emerald-600 text-white p-3 rounded-lg font-bold hover:bg-emerald-700 transition duration-150">
+                                    Redeem Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------------------------------------- -->
+            <!-- 2. VIDEO UPLOAD VIEW -->
+            <!-- -------------------------------------------------------------------------------------- -->
+            <div id="upload-view" class="view hidden">
+                <div class="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Upload Your Collection Video</h3>
+                    <p class="text-gray-600 mb-6">Record a clear video showing yourself collecting plastic waste and properly disposing of it at a verified recycling center. Max file size: 50MB.</p>
+                    
+                    <form id="videoUploadForm" onsubmit="handleVideoUpload(event)">
+                        <div class="mb-4">
+                            <label for="videoFile" class="block text-sm font-medium text-gray-700 mb-1">Video File (MP4, MOV)</label>
+                            <input type="file" id="videoFile" name="videoFile" accept="video/*" required 
+                                class="w-full p-2 border border-gray-300 rounded-lg text-gray-700 file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0 file:text-sm file:font-semibold
+                                file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition duration-150">
+                            <p class="text-xs text-red-500 mt-1" id="file-error"></p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="videoDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea id="videoDescription" name="description" rows="3" required 
+                                placeholder="e.g., Cleanup drive at Marina Beach, 12KG collected."
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                        </div>
+                        
+                        <button type="submit" id="uploadVideoBtn" 
+                            class="w-full bg-emerald-500 text-white p-3 rounded-lg font-bold text-lg hover:bg-emerald-600 disabled:opacity-50">
+                            Submit Video for Verification
+                        </button>
+                    </form>
+                    
+                    <p id="upload-status" class="mt-4 text-center text-sm text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------------------------------------- -->
+            <!-- 3. ECO-SHORTS VIEW -->
+            <!-- -------------------------------------------------------------------------------------- -->
+            <div id="shorts-view" class="view hidden">
+                <p class="text-gray-600 mb-6">Watch and share short clips of inspiring eco-friendly activities!</p>
+                <div id="shorts-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 scroll-container">
+                    <!-- Short Cards are generated here -->
+                </div>
+            </div>
+
+            <!-- -------------------------------------------------------------------------------------- -->
+            <!-- 4. LEADERBOARD VIEW -->
+            <!-- -------------------------------------------------------------------------------------- -->
+            <div id="leaderboard-view" class="view hidden">
+                <p class="text-gray-600 mb-6">Top EcoVoyagers making the biggest impact this month!</p>
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voyager</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verified Videos</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200 scroll-container">
+                            <!-- Leaderboard rows are generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- -------------------------------------------------------------------------------------- -->
+            <!-- 5. COMMUNITY & GROUPS VIEW -->
+            <!-- -------------------------------------------------------------------------------------- -->
+            <div id="community-view" class="view hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Group/Collaboration Panel -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg scroll-container">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                            <i data-lucide="users-2" class="w-5 h-5 mr-2 text-blue-600"></i>Cleanup Groups
+                        </h3>
+                        <p class="text-gray-600 mb-4">Join a group to organize local cleanup drives!</p>
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 p-4 rounded-lg cursor-pointer hover:bg-blue-100 transition duration-150" onclick="showMessage('Joined: City Park Warriors')">
+                                <p class="font-semibold text-blue-800">City Park Warriors</p>
+                                <p class="text-sm text-blue-600">Next Drive: Sat, 9 AM</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg cursor-pointer hover:bg-blue-100 transition duration-150" onclick="showMessage('Joined: Beach Cleanup Crew')">
+                                <p class="font-semibold text-blue-800">Beach Cleanup Crew</p>
+                                <p class="text-sm text-blue-600">12 members active.</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg cursor-pointer hover:bg-blue-100 transition duration-150" onclick="showMessage('Joined: Mountain Trail Patrol')">
+                                <p class="font-semibold text-blue-800">Mountain Trail Patrol</p>
+                                <p class="text-sm text-blue-600">Planning trip next week.</p>
+                            </div>
+                        </div>
+                        <button class="mt-4 w-full bg-blue-500 text-white p-3 rounded-lg font-bold hover:bg-blue-600" onclick="showMessage('Group creation feature is in development.')">
+                            Create New Group
+                        </button>
+                    </div>
+
+                    <!-- Mock Chat/Discussion Panel -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg flex flex-col h-[600px] lg:h-auto">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2 text-purple-600"></i>Global Discussion
+                        </h3>
+                        
+                        <!-- Chat Window -->
+                        <div id="chat-window" class="flex-1 bg-gray-50 p-4 rounded-lg mb-4 overflow-y-auto scroll-container">
+                            <div class="text-center text-gray-500 mb-4">-- Welcome to the Global Eco-Chat --</div>
+
+                            <div class="flex flex-col space-y-3">
+                                <div class="flex justify-start">
+                                    <div class="bg-gray-200 p-3 rounded-xl max-w-xs text-sm">
+                                        <p class="font-semibold text-purple-600">Jane_V</p>
+                                        <p>Just finished my first cleanup! Got 5KG. Feels great!</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <div class="bg-emerald-100 p-3 rounded-xl max-w-xs text-sm">
+                                        <p class="font-semibold text-emerald-800">You</p>
+                                        <p>Awesome work, Jane! Keep it up. What location?</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-start">
+                                    <div class="bg-gray-200 p-3 rounded-xl max-w-xs text-sm">
+                                        <p class="font-semibold text-purple-600">Jane_V</p>
+                                        <p>Local river trail! Lots of plastic bottles and packaging.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="flex">
+                            <input type="text" placeholder="Type your message..." id="chat-input"
+                                class="flex-1 p-3 border border-gray-300 rounded-l-lg focus:ring-purple-500 focus:border-purple-500">
+                            <button onclick="handleChatSend()" class="bg-purple-500 text-white p-3 rounded-r-lg font-bold hover:bg-purple-600 transition duration-150">
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Global Modal/Message Box (replacing alert()) -->
+    <div id="modal-message" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50" onclick="this.classList.add('hidden')">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full transform transition-all duration-300" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-bold text-gray-800 mb-3" id="modal-title">Notification</h3>
+            <p class="text-gray-600 mb-4" id="modal-text"></p>
+            <button class="w-full bg-emerald-500 text-white p-2 rounded-lg font-semibold hover:bg-emerald-600" onclick="document.getElementById('modal-message').classList.add('hidden')">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- -------------------------------------------------------------------------------------- -->
+    <!-- JAVASCRIPT & FIREBASE LOGIC -->
+    <!-- -------------------------------------------------------------------------------------- -->
+    <script type="module">
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth, userId = null;
+        let isAuthReady = false;
+
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, addDoc, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Enable Firebase debugging (optional, but good practice)
+        setLogLevel('Debug');
+        
+        // Mock data structure for the leaderboard and shorts
+        const mockLeaderboardData = [
+            { rank: 1, name: 'EcoWarrior Jane', videos: 45, points: 5800, color: 'text-yellow-500', icon: '🏆' },
+            { rank: 2, name: 'GreenThumb Mike', videos: 38, points: 4920, color: 'text-gray-500', icon: '🥈' },
+            { rank: 3, name: 'RiverTrail Alex', videos: 30, points: 3500, color: 'text-yellow-800', icon: '🥉' },
+            { rank: 4, name: 'CleanCoast Sarah', videos: 22, points: 2800, color: 'text-gray-700', icon: '4' },
+            { rank: 5, name: 'MountainPatrol Vic', videos: 18, points: 2150, color: 'text-gray-700', icon: '5' },
+        ];
+        
+        const mockShortsData = [
+            { title: 'DIY Compost Guide', user: '@GardenerGem', likes: 120 },
+            { title: 'Zero Waste Grocery Haul', user: '@EcoLiving', likes: 88 },
+            { title: 'Quick Tip: Recycling Bottle Caps', user: '@RecycleKing', likes: 250 },
+            { title: 'Planting a Local Tree', user: '@TreeHugger', likes: 55 },
+        ];
+
+
+        // -----------------------------------------------------------
+        // 1. UTILITY FUNCTIONS
+        // -----------------------------------------------------------
+
+        window.showMessage = (message, title = 'Notification') => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-text').textContent = message;
+            document.getElementById('modal-message').classList.remove('hidden');
+            document.getElementById('modal-message').classList.add('flex');
+        }
+
+        window.handleChatSend = () => {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message) {
+                // Mock adding the message to the chat window
+                const chatWindow = document.getElementById('chat-window');
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('flex', 'justify-end', 'mt-3');
+                newMessage.innerHTML = `
+                    <div class="bg-emerald-100 p-3 rounded-xl max-w-xs text-sm">
+                        <p class="font-semibold text-emerald-800">You</p>
+                        <p>${message}</p>
+                    </div>
+                `;
+                chatWindow.appendChild(newMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to bottom
+                input.value = '';
+            }
+        }
+
+        window.handleVideoUpload = async (e) => {
+            e.preventDefault();
+            if (!userId) {
+                return showMessage('Please wait for authentication to complete before uploading.', 'Auth Required');
+            }
+
+            const form = e.target;
+            const statusElement = document.getElementById('upload-status');
+            const fileInput = document.getElementById('videoFile');
+            const fileErrorElement = document.getElementById('file-error');
+
+            fileErrorElement.textContent = '';
+            statusElement.textContent = '';
+
+            if (fileInput.files.length === 0) {
+                fileErrorElement.textContent = 'Please select a video file.';
+                return;
+            }
+
+            const videoFile = fileInput.files[0];
+            const MAX_SIZE_MB = 50;
+            if (videoFile.size > MAX_SIZE_MB * 1024 * 1024) {
+                 fileErrorElement.textContent = `Video file size is too large. Max size is ${MAX_SIZE_MB}MB.`;
+                 return;
+            }
+
+            const uploadButton = document.getElementById('uploadVideoBtn');
+            uploadButton.disabled = true;
+            statusElement.textContent = 'Submitting metadata to Firestore...';
+
+            try {
+                // 1. Log the video submission in the user's private video collection
+                const videosCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/videos`);
+                await addDoc(videosCollectionRef, {
+                    description: document.getElementById('videoDescription').value,
+                    // In a real app, you'd store the URL from Firebase Storage here: videoUrl: '...'
+                    fileName: videoFile.name, // Mock storage of file name
+                    timestamp: serverTimestamp(),
+                    status: 'pending', // 'pending', 'verified', or 'rejected'
+                    pointsAwarded: 0
+                });
+
+                // 2. Mock: Update the profile document to increment pending video count (optional, but useful)
+                // We rely mostly on the listener for accurate counts, but we'll show immediate success.
+
+                statusElement.textContent = `Video "${videoFile.name}" metadata submitted successfully. Waiting for file upload (mock).`;
+                showMessage('Your video has been submitted and is **Under Review** by the moderators. Check your dashboard for status updates!', 'Submission Successful');
+
+                form.reset(); // Reset the form after successful submission
+                // The 'pending-videos' count will be updated by the onSnapshot listener automatically.
+
+            } catch (error) {
+                console.error("Error submitting video data:", error);
+                statusElement.textContent = 'Submission failed. Please try again.';
+                showMessage(`Submission failed. Error: ${error.message.substring(0, 80)}...`, 'Database Error');
+            } finally {
+                uploadButton.disabled = false;
+            }
+        }
+        
+        // -----------------------------------------------------------
+        // 2. RENDERING FUNCTIONS
+        // -----------------------------------------------------------
+
+        function renderLeaderboard(data) {
+            const body = document.getElementById('leaderboard-body');
+            body.innerHTML = ''; 
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.classList.add('hover:bg-gray-50', 'transition', 'duration-150');
+                const rankClass = item.rank <= 3 ? 'font-bold' : '';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${rankClass} ${item.color}">${item.icon} ${item.rank}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.videos}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-600">${item.points}</td>
+                `;
+                body.appendChild(row);
+            });
+        }
+        
+        function renderShorts(data) {
+            const container = document.getElementById('shorts-container');
+            container.innerHTML = '';
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('short-card', 'relative', 'group');
+                card.style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('https://placehold.co/300x400/10B981/ffffff?text=${encodeURIComponent(item.title.split(' ')[0])}')`;
+                
+                card.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black bg-opacity-30 rounded-xl">
+                         <i data-lucide="play-circle" class="w-12 h-12 text-white"></i>
+                    </div>
+                    <div class="w-full">
+                        <p class="text-xl font-bold">${item.title}</p>
+                        <div class="flex items-center justify-between text-sm mt-1">
+                            <span class="text-gray-300">${item.user}</span>
+                            <span class="flex items-center"><i data-lucide="heart" class="w-4 h-4 mr-1 fill-white"></i>${item.likes}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons(); 
+        }
+
+        function renderVideoList(videos) {
+            const container = document.getElementById('video-list-container');
+            container.innerHTML = '';
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 p-4">You have not submitted any videos yet. Start collecting!</p>';
+                return;
+            }
+
+            videos.forEach(video => {
+                let statusClass = '';
+                let statusIcon = '';
+                let statusText = '';
+                
+                if (video.status === 'verified') {
+                    statusClass = 'text-emerald-600 bg-emerald-100';
+                    statusIcon = 'check-circle';
+                    statusText = 'Verified';
+                } else if (video.status === 'rejected') {
+                    statusClass = 'text-red-600 bg-red-100';
+                    statusIcon = 'x-circle';
+                    statusText = 'Rejected';
+                } else { // pending
+                    statusClass = 'text-yellow-600 bg-yellow-100';
+                    statusIcon = 'clock';
+                    statusText = 'Under Review';
+                }
+
+                const timestamp = video.timestamp?.toDate ? video.timestamp.toDate().toLocaleDateString() : 'N/A';
+
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('flex', 'items-center', 'justify-between', 'p-4', 'hover:bg-gray-50', 'transition');
+                videoItem.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center min-w-0 flex-1">
+                        <i data-lucide="${statusIcon}" class="w-5 h-5 mr-3 hidden sm:block ${statusClass.split(' ')[0]}"></i>
+                        <p class="font-medium text-gray-800 truncate flex-1" title="${video.description}">
+                            ${video.description || 'No Description'}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1 sm:mt-0 sm:ml-4">${timestamp}</p>
+                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full ${statusClass} ml-4 whitespace-nowrap">
+                        ${statusText}
+                    </span>
+                `;
+                container.appendChild(videoItem);
+            });
+            lucide.createIcons(); 
+        }
+
+        function updateProfileUI(profileData) {
+            document.getElementById('reward-points').textContent = profileData.rewardPoints.toLocaleString();
+            document.getElementById('redeem-points').textContent = profileData.rewardPoints.toLocaleString();
+            document.getElementById('current-rank').textContent = profileData.currentRank;
+            document.getElementById('verified-videos').textContent = profileData.verifiedVideos;
+            
+            document.getElementById('profileUsername').textContent = profileData.username || 'EcoVoyager';
+            document.getElementById('profileUserId').textContent = `Auth ID: ${userId}`; // Show full ID for dev/testing
+        }
+
+        function updatePendingVideoCount(pendingCount) {
+             document.getElementById('pending-videos').textContent = pendingCount;
+        }
+
+        // -----------------------------------------------------------
+        // 3. FIREBASE & FIRESTORE SETUP
+        // -----------------------------------------------------------
+
+        async function initializeAppAndAuth() {
+            if (!firebaseConfig) {
+                 console.error("Firebase config not found.");
+                 showMessage("The application environment is not configured. Cannot connect to user services.", "Setup Error");
+                 return;
+            }
+            
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                await setPersistence(auth, browserLocalPersistence);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        startDataListeners(); 
+                        console.log("Firebase Auth Ready. User ID:", userId);
+                    } else {
+                        userId = null;
+                        isAuthReady = true; 
+                        console.log("User not signed in.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error during Firebase initialization or sign-in:", error);
+                showMessage(`Authentication failed. Error: ${error.message.substring(0, 50)}...`, "Auth Error");
+            }
+        }
+        
+        function listenForUserProfile() {
+            const profileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/main`);
+            
+            // Initial check to ensure profile exists
+            getDoc(profileDocRef).then(docSnap => {
+                if (!docSnap.exists()) {
+                    console.log("Creating default profile.");
+                    const defaultProfile = {
+                        username: `User_${userId.substring(0, 8)}`,
+                        verifiedVideos: 0,
+                        rewardPoints: 50, // Small starting bonus
+                        currentRank: 'Newbie',
+                        lastLogin: new Date().toISOString()
+                    };
+                    setDoc(profileDocRef, defaultProfile).catch(e => console.error("Error setting default profile:", e));
+                }
+            }).catch(e => console.error("Error checking profile existence:", e));
+
+
+            // Real-time listener for profile updates
+            onSnapshot(profileDocRef, (doc) => {
+                if (doc.exists()) {
+                    const profileData = doc.data();
+                    updateProfileUI(profileData);
+                }
+            }, (error) => {
+                console.error("Error listening to profile data:", error);
+            });
+        }
+        
+        function listenForUserVideos() {
+             const videosCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/videos`);
+             // NOTE: We avoid orderBy here to prevent index missing errors, and sort locally instead.
+             const q = query(videosCollectionRef); 
+
+             onSnapshot(q, (snapshot) => {
+                 const videos = [];
+                 let pendingCount = 0;
+                 
+                 snapshot.forEach(doc => {
+                     const data = doc.data();
+                     videos.push({ id: doc.id, ...data });
+                     if (data.status === 'pending') {
+                         pendingCount++;
+                     }
+                 });
+                 
+                 // Sort videos locally by timestamp, most recent first
+                 videos.sort((a, b) => {
+                     const aTime = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : 0;
+                     const bTime = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : 0;
+                     return bTime - aTime;
+                 });
+
+                 renderVideoList(videos);
+                 updatePendingVideoCount(pendingCount);
+
+             }, (error) => {
+                 console.error("Error listening to user videos:", error);
+             });
+        }
+
+        function startDataListeners() {
+            if (!isAuthReady || !userId || !db) return;
+
+            listenForUserProfile();
+            listenForUserVideos();
+            
+            // Render mock data (Leaderboard/Shorts)
+            renderLeaderboard(mockLeaderboardData);
+            renderShorts(mockShortsData);
+        }
+        
+        window.handleLogout = async () => {
+            try {
+                await signOut(auth);
+                showMessage("You have been logged out. Please close this window and log in again.", "Logged Out");
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showMessage("Could not log out. Please check your connection.", "Logout Failed");
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 4. VIEW SWITCHING LOGIC
+        // -----------------------------------------------------------
+
+        const navLinks = document.querySelectorAll('.nav-item');
+        const mobileSelect = document.getElementById('mobile-nav-select');
+        const contentViews = document.getElementById('content-views');
+        const viewTitle = document.getElementById('current-view-title');
+
+        const viewsMap = {
+            'dashboard': 'Dashboard & Profile',
+            'upload': 'Video Upload',
+            'shorts': 'Eco-Shorts Feed',
+            'leaderboard': 'Leaderboard',
+            'community': 'Community & Groups'
+        };
+
+        function switchView(viewId) {
+            window.location.hash = viewId;
+
+            contentViews.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            const targetView = document.getElementById(`${viewId}-view`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                
+                viewTitle.textContent = viewsMap[viewId] || 'EcoVoyagers Dashboard';
+
+                document.querySelector(`.nav-item[data-view="${viewId}"]`)?.classList.add('active');
+                mobileSelect.value = viewId;
+            }
+        }
+
+        // Event Listeners for desktop navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const viewId = link.getAttribute('data-view');
+                switchView(viewId);
+            });
+        });
+
+        // Event Listener for mobile navigation
+        mobileSelect.addEventListener('change', (e) => {
+            switchView(e.target.value);
+        });
+
+        // Initialize view based on URL hash or default to 'dashboard'
+        window.addEventListener('load', () => {
+            const initialView = window.location.hash.substring(1) || 'dashboard';
+            switchView(initialView);
+            initializeAppAndAuth();
+            lucide.createIcons(); 
+        });
+
+        window.handleVideoUpload = handleVideoUpload;
+    </script>
+</body>
+</html>
