@@ -1,105 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-          lucide.createIcons();
-        
-          // ========================
-          // 🔹 NAVIGATION SYSTEM
-          // ========================
-          const navItems = document.querySelectorAll(".nav-item");
-          const views = document.querySelectorAll(".view");
-          const title = document.getElementById("current-view-title");
-        
-          function switchView(viewId) {
-            views.forEach(v => v.classList.remove("active"));
-            navItems.forEach(n => n.classList.remove("active"));
-        
-            const targetView = document.getElementById(`${viewId}-view`);
-            if (targetView) {
-              targetView.classList.add("active");
-              document.querySelector(`.nav-item[data-view="${viewId}"]`).classList.add("active");
-              title.textContent = document.querySelector(`.nav-item[data-view="${viewId}"]`).textContent.trim();
-            }
-          }
-        
-          navItems.forEach(item => {
-            item.addEventListener("click", e => {
-              e.preventDefault();
-              switchView(item.dataset.view);
-            });
-          });
-        
-          // ========================
-          // 🔹 DASHBOARD DATA
-          // ========================
-          let verifiedVideos = 0;
-          let underReview = 0;
-          let rewardPoints = 0;
-          let currentRank = "--";
-        
-          function updateDashboard() {
-            document.getElementById("verifiedCount").textContent = verifiedVideos;
-            document.getElementById("underReviewCount").textContent = underReview;
-            document.getElementById("rewardPoints").textContent = rewardPoints;
-            document.getElementById("currentRank").textContent = currentRank;
-          }
-        
-          updateDashboard();
-        
-          // ========================
-          // 🔹 UPLOAD HANDLER
-          // ========================
-          const uploadForm = document.getElementById("uploadForm");
-          if (uploadForm) {
-            uploadForm.addEventListener("submit", e => {
-              e.preventDefault();
-              const file = document.getElementById("videoFile").files[0];
-              const desc = document.getElementById("videoDesc").value.trim();
-        
-              if (!file) {
-                alert("Please select a video file before uploading.");
-                return;
-              }
-        
-              underReview++;
-              updateDashboard();
-              alert(`Your video "${file.name}" has been submitted and is under review.`);
-              e.target.reset();
-            });
-          }
-        
-          // ========================
-          // 🔹 REDEEM POINTS
-          // ========================
-          const redeemBtn = document.getElementById("redeemBtn");
-          if (redeemBtn) {
-            redeemBtn.addEventListener("click", () => {
-              const redeemInput = parseInt(document.getElementById("redeemInput").value);
-              const msg = document.getElementById("redeemMsg");
-        
-              if (isNaN(redeemInput) || redeemInput <= 0) {
-                msg.textContent = "⚠️ Enter a valid number of points to redeem.";
-                msg.className = "text-sm text-red-500 mt-2";
-                return;
-              }
-        
-              if (redeemInput > rewardPoints) {
-                msg.textContent = "❌ You don't have enough points to redeem that amount.";
-                msg.className = "text-sm text-red-500 mt-2";
-                return;
-              }
-        
-              rewardPoints -= redeemInput;
-              msg.textContent = `✅ Successfully redeemed ${redeemInput} points!`;
-              msg.className = "text-sm text-green-600 mt-2";
-              updateDashboard();
-            });
-          }
-        });
-        </script>
-        
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoVoyagers Dashboard</title>
@@ -146,6 +47,10 @@
         </a>
         <a href="#" data-view="leaderboard" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700">
           <i data-lucide="award" class="w-5 h-5 mr-3"></i> Leaderboard
+        </a>
+        <!-- 🔹 NEW: Moderator panel link -->
+        <a href="#" data-view="moderator" class="nav-item flex items-center p-3 rounded-xl font-medium text-gray-700">
+          <i data-lucide="shield-check" class="w-5 h-5 mr-3"></i> Moderator Panel
         </a>
       </div>
     </div>
@@ -221,7 +126,7 @@
 
     <!-- Leaderboard -->
     <div id="leaderboard-view" class="view">
-      <div class="bg-white p-6 rounded-xl shadow-md">
+      <div class="bg-white p-6 rounded-xl shadow-md mb-8">
         <h3 class="text-lg font-bold mb-4">Leaderboard 🏆</h3>
         <p class="text-gray-600 mb-3">Leaderboard will show users once videos are verified.</p>
         <table class="min-w-full border">
@@ -233,9 +138,21 @@
             </tr>
           </thead>
           <tbody id="leaderboardBody">
-            <!-- Empty until verification -->
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- 🔹 NEW: Moderator Panel -->
+    <div id="moderator-view" class="view">
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-lg font-bold mb-4 flex items-center">
+          <i data-lucide="shield-check" class="w-6 h-6 mr-2 text-emerald-500"></i> Moderator Panel
+        </h3>
+        <p class="text-gray-600 mb-4">Review submitted videos below and verify or reject them.</p>
+        <div id="moderatorList" class="space-y-4">
+          <p class="text-gray-500">No videos under review yet.</p>
+        </div>
       </div>
     </div>
   </main>
@@ -268,6 +185,7 @@
     let underReview = 0;
     let rewardPoints = 0;
     let currentRank = "--";
+    let videos = []; // 🔹 NEW: store uploaded videos
 
     // Update UI stats
     function updateDashboard() {
@@ -275,6 +193,57 @@
       document.getElementById('underReviewCount').textContent = underReview;
       document.getElementById('rewardPoints').textContent = rewardPoints;
       document.getElementById('currentRank').textContent = currentRank;
+    }
+
+    // Update moderator list
+    function renderModeratorList() {
+      const list = document.getElementById('moderatorList');
+      list.innerHTML = "";
+
+      const pending = videos.filter(v => v.status === "pending");
+
+      if (pending.length === 0) {
+        list.innerHTML = `<p class="text-gray-500">No videos under review yet.</p>`;
+        return;
+      }
+
+      pending.forEach((vid, index) => {
+        const div = document.createElement('div');
+        div.className = "border rounded-lg p-4 shadow-sm flex flex-col gap-2";
+        div.innerHTML = `
+          <p><strong>File:</strong> ${vid.name}</p>
+          <p><strong>Description:</strong> ${vid.desc}</p>
+          <div class="flex gap-2">
+            <button class="verifyBtn bg-green-500 text-white px-3 py-1 rounded-md" data-id="${index}">Verify</button>
+            <button class="rejectBtn bg-red-500 text-white px-3 py-1 rounded-md" data-id="${index}">Reject</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      document.querySelectorAll('.verifyBtn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = e.target.dataset.id;
+          videos[id].status = "verified";
+          verifiedVideos++;
+          underReview--;
+          rewardPoints += 10; // add points for verified video
+          updateDashboard();
+          renderModeratorList();
+          alert(`✅ Video "${videos[id].name}" verified successfully!`);
+        });
+      });
+
+      document.querySelectorAll('.rejectBtn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = e.target.dataset.id;
+          videos[id].status = "rejected";
+          underReview--;
+          updateDashboard();
+          renderModeratorList();
+          alert(`❌ Video "${videos[id].name}" rejected.`);
+        });
+      });
     }
 
     // Upload form handler
@@ -288,12 +257,14 @@
         return;
       }
 
+      videos.push({ name: file.name, desc, status: "pending" });
       underReview++;
       updateDashboard();
-      alert(`Your video "${file.name}" has been submitted and is under review.`);
+      renderModeratorList();
+
+      alert(`🎥 Your video "${file.name}" has been submitted and is under review.`);
       e.target.reset();
     });
-    
 
     // Redeem Points
     document.getElementById('redeemBtn').addEventListener('click', () => {
@@ -319,7 +290,6 @@
     });
 
     updateDashboard();
-    
   </script>
 </body>
 </html>
